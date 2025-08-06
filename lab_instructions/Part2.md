@@ -143,7 +143,7 @@ FROM
 
 If you look inside of `advanced_analytics.public.orders_reviews_sentiment_test` you'll notice two new columns: `sentiment_assessment` and `sentiment_categories` `sentiment_assessment` contains overall assessment of the sentiment based on the review and `sentiment_categories` has an evaluation of each of three components individually: cost, quality and delivery time.
 
-<img src="images/image\_010.png" alt="alt text" width="45%"\>
+<img src="images/image010.png" alt="alt text" width="45%">
 
 Now when you see that the results stick to the expected format, you can run the query above without the `top 10` limit. This query might take some time to complete, so to save time for this quickstart we've ran it for you in advance and stored results which you can import into new table by running following two queries:
 
@@ -247,11 +247,11 @@ FROM
 
 In this step, you will visualize the scoring results on the map. Open `Projects > Streamlit > Streamlit App` . Give the new app a name, for example `Sentiment analysis - results`, and pick `ADVANCED_ANALYTICS.PUBLIC` as an app location.
 
-<img src="images/image\_011.png" alt="alt text" width="45%"\>
+<img src="images/image011.png" alt="alt text" width="45%">
 
 Click on the packages tab and add `pydeck` and `branca` to the list of packages as our app will be using them.
 
-<img src="images/image\_012.png" alt="alt text" width="45%"\>
+<img src="images/image012.png" alt="alt text" width="45%">
 
 Then copy-paste the following code to the editor and click `Run` :
 
@@ -433,23 +433,23 @@ if __name__ == "__main__":
 
 After clicking `Run` button you will see the following UI:
 
-<img src="images/image\_013.png" alt="alt text" width="45%"\>
+<img src="images/image013.png" alt="alt text" width="45%">
 
 You can start with the overall analysis of the order density. When you select "`DELIVERY_LOCATION`" as a Dimension and "`ORDERS`" as a Measure you'll see what areas correspond to the high number of orders. You can use scale 7 and zoom in to identify clear clusters of where the most deliveries are occurring. In this case you see most deliveries are in Santa Clara, San Jose, and the San Francisco Bay. In particular, the area on the San Francisco peninsula looks to be an area of interest. Zooming in further you can see a dense area of delivery orders. \\
 
-<img src="images/image\_014.png" alt="alt text" width="45%"\>
+<img src="images/image014.png" alt="alt text" width="45%">
 
 Using a finer H3 resolution, 8 shows how the delivery densities are distributed more finely. From this resolution, you can see the orders are concentrated in Daly City and proceed down to San Bruno. Additionally, in the North, the majority of the orders are coming from the stretch of the Sunset District to the Mission District.
 
-<img src="images/image\_015.png" alt="alt text" width="45%"\>
+<img src="images/image015.png" alt="alt text" width="45%">
 
 Now that you know where the majority of orders are coming from, let's analyze whether there are interesting differences in customer satisfaction depending on where they are located. Select `DELIVERY LOCATION` as a dimension and `SENTIMENT_SCORE` as a Measure to see the overall sentiment score that the Cortex LLM Complete Function generated. You can notice that the customers are mostly satisfied in the areas of Daly City down to San Jose, in the Santa Rosa area, and around Dublin. You also see that the area between these is mostly showing unhappy customers.
 
-<img src="images/image\_016.png" alt="alt text" width="45%"\>
+<img src="images/image016.png" alt="alt text" width="45%">
 
 In order to understand why customers in this area are unhappy, you analyze the aspect based sentiment results of the Cortex LLM Complete Function generated for the categories of interest: food cost, delivery time, and the food quality. If you focus purely on the customers that were unhappy, you see that the primary reasons are food quality and food cost getting poor scores. Essentially, the food is not worth the cost and delivery time being fast does not make up for this. Check visualizations using the following combinations of parameters:
 
-<img src="images/image\_017.png" alt="alt text" width="45%"\>
+<img src="images/image017.png" alt="alt text" width="45%">
 
 If you look at all H3 cells where food quality was high, the average sentiment score is also generally high. Again, you can see there are no cells where customers felt the food quality was above average in the greater Berkeley area. This could indicate either that high quality delivery food is uncommon or that the customers in these areas have higher expectations for delivery food. You can also analyze what areas are getting higher scores for each of the categories and how it correlates with the overall sentiment scores for restaurants in each area.
 
