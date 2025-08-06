@@ -1,13 +1,13 @@
 # Getting Started with Geospatial Hands-On Practice
 
-Snowflake offers a rich toolkit for predictive analytics with a geospatial component. It includes two data types and specialized functions for transformation, prediction, and visualization. This guide is divided into multiple labs, each covering a separate use case that showcases different features for a real-world scenario. 
+Snowflake offers a rich toolkit for predictive analytics with a geospatial component. It includes two data types and specialized functions for transformation, prediction, and visualization. This guide is divided into multiple labs, each covering a separate use case that showcases different features for a real-world scenario.
 
 Helpful Supporting Documents:
 
-* Understanding of Discrete Global Grid H3
-* Understanding of Geospatial Data Types and Geospatial Functions in Snowflake
-* Geospatial Analysis using Geometry Data Type Quickstart
-* ​Performance Optimization Techniques for Geospatial queries Quickstart
+  * Understanding of Discrete Global Grid H3
+  * Understanding of Geospatial Data Types and Geospatial Functions in Snowflake
+  * Geospatial Analysis using Geometry Data Type Quickstart
+  * ​Performance Optimization Techniques for Geospatial queries Quickstart
 
 ## Setup your Account
 
@@ -15,7 +15,7 @@ Helpful Supporting Documents:
 
 Switch your current role from the default SYSADMIN to ACCOUNTADMIN . This increase in permissions will allow you to create shared databases from Snowflake Marketplace listings.
 
-![Image](images/image_001.png)
+<img src="images/image_001.png" alt="alt text" width="45%">
 
 ## Create a Virtual Warehouse
 
@@ -36,13 +36,12 @@ SCALING_POLICY = 'STANDARD';
 USE WAREHOUSE my_wh;
 ```
 
-
 Navigate to the query editor by clicking on Worksheets on the top left navigation bar and choose your warehouse.
 
-* Click the + Worksheet button in the upper right of your browser window. This will open a new window.
-* In the new Window, make sure ACCOUNTADMIN and MY_WH are selected in the upper right of your browser window.
+  * Click the + Worksheet button in the upper right of your browser window. This will open a new window.
+  * In the new Window, make sure ACCOUNTADMIN and MY\_WH are selected in the upper right of your browser window.
 
-![Image](images/image_002.png)
+<img src="images/image_002.png" alt="alt text" width="45%">
 
 Create a new database and schema where you will store datasets in the GEOMETRY data type.
 
@@ -62,7 +61,7 @@ ALTER SESSION SET USE_CACHED_RESULT = FALSE;
 
 In your Snowflake account, open a new SQL worksheet and run the following code:
 
-```sql
+````sql
 use role accountadmin;
 create or replace api integration dora_api_integration
 api_provider = aws_api_gateway
@@ -77,10 +76,11 @@ api_allowed_prefixes =
 This code will create an API integration in your Snowflake account under the; ACCOUNTADMIN role. To confirm that the integration was created, you can run the following:
 ```sql
 show api integrations LIKE 'dora_api_integration';
-```
+````
+
 ### Greeting external function for submitting SE information for linking to Freestyle
 
-Next, create the se_greeting function. This function will identify the user in the grading system so that their results can be tied back to Freestyle.
+Next, create the se\_greeting function. This function will identify the user in the grading system so that their results can be tied back to Freestyle.
 
 ```sql
 use role accountadmin;
@@ -99,7 +99,8 @@ as
     'https:-- awy6hshxy4.execute-api.us-west-2.amazonaws.com/dev
     /edu_dora/greeting';
 ```
-The se_greeting function will be located in the UTIL_DB.PUBLIC schema in your account. If you don't see the function, please refresh the objects in the Databases section of your account. In addition, ensure you are using the ACCOUNTADMIN role.
+
+The se\_greeting function will be located in the UTIL\_DB.PUBLIC schema in your account. If you don't see the function, please refresh the objects in the Databases section of your account. In addition, ensure you are using the ACCOUNTADMIN role.
 
 ```sql
 Call the se_greeting function once to identify your activity in the system.
@@ -128,7 +129,7 @@ util_db.public.se_greeting('test.USE r@snowflake.com',
 
 ### Grader  external function for submitting grading calls
 
-Finally, create the se_grader function. This function will be used for grading (i.e., validating the successful completion of steps or tasks in the account).
+Finally, create the se\_grader function. This function will be used for grading (i.e., validating the successful completion of steps or tasks in the account).
 
 ```sql
 use role accountadmin;
@@ -166,17 +167,18 @@ select se_grader(step, (actual = expected), actual,
     ,'Dora is working!' as description
     );
 ```
-If the auto-grader is correctly provisioned, you should see a GRADED_RESULTS column with several pieces of information, including a checkbox and a message "description": "Dora is working!" .
 
-## Forecasting time series on a map
+If the auto-grader is correctly provisioned, you should see a GRADED\_RESULTS column with several pieces of information, including a checkbox and a message "description": "Dora is working\!" .
+
+# Forecasting time series on a map
 
 In this lab, we aim to show you how to predict the number of trips in the coming hours in each area of New York. To accomplish this, you will ingest the raw data and then aggregate it by hour and region. For simplicity, you will use [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/). The result will be an hourly time series, each representing the count of trips originating from distinct areas. Before running prediction and visualizing results, you will enrich data with third-party signals, such as information about holidays and offline sports events.
 
 In this lab you will learn how to:
 
-* Work with geospatial data
-* Enrich data with new features
-* Predict time-series of complex structure
+  * Work with geospatial data
+  * Enrich data with new features
+  * Predict time-series of complex structure
 
 This approach is not unique to trip forecasting but is equally applicable in various scenarios where predictive analysis is required. Examples include forecasting scooter or bike pickups, food delivery orders, sales across multiple retail outlets, or predicting the volume of cash withdrawals across an ATM network. Such models are invaluable for planning and optimization across various industries and services.
 
@@ -184,41 +186,42 @@ This approach is not unique to trip forecasting but is equally applicable in var
 
 The New York Taxi and Limousine Commission (TLC) has provided detailed, anonymized customer travel data since 2009. Painted yellow cars can pick up passengers in any of the city's five boroughs. Raw data on yellow taxi rides can be found on the TLC website . This data is divided into files by month. Each file contains detailed trip information, you can read about it here . For our project, you will use an NY Taxi dataset for the 2014-2015 years from the CARTO Academy Marketplace listing.
 
-* Navigate to the Marketplace screen using the menu on the left side of the window
-* Search for `CARTO Academy` in the search bar
-* Find and click the `CARTO Academy - Data for tutorials` tile
-* Once in the listing, click the big blue `Get` button
+  * Navigate to the Marketplace screen using the menu on the left side of the window
+  * Search for `CARTO Academy` in the search bar
+  * Find and click the `CARTO Academy - Data for tutorials` tile
+  * Once in the listing, click the big blue `Get` button
 
-Change the name of the database from the default to Carto_Academy , as all future instructions will assume this name for the database.
+Change the name of the database from the default to Carto\_Academy , as all future instructions will assume this name for the database.
 
-![Image](images/image_003.png)
+<img src="images/image_003.png" alt="alt text" width="45%">
 
 Another dataset you will use is events data, which you can also get from the Snowflake Marketplace. It is provided by PredictHQ and called PredictHQ Quickstart Demo.
 
-* Search for `PredictHQ Quickstart Demo` in the search bar
-* Find and click the `Quickstart Demo` tile
-![Image](images/image_004.png)
+  * Search for `PredictHQ Quickstart Demo` in the search bar
+  * Find and click the `Quickstart Demo` tile
 
-*  On the Get Data screen, change the name of the database from the default to PredictHQ_Demo .
+<img src="images/image_004.png" alt="alt text" width="45%">
 
-![Image](images/image_005.png)
+  * On the Get Data screen, change the name of the database from the default to PredictHQ\_Demo .
+
+<img src="images/image_005.png" alt="alt text" width="45%">
 
 ## Step 2. Data transformation
 
-In this step, you'll divide New York into uniformly sized regions and assign each taxi pick-up location to one of these regions. We aim to get a table with the number of taxi trips per hour for each region. 
+In this step, you'll divide New York into uniformly sized regions and assign each taxi pick-up location to one of these regions. We aim to get a table with the number of taxi trips per hour for each region.
 
-To achieve this division, you will use the Discrete Global Grid H3. H3 organizes the world into a grid of equal-sized hexagonal cells, with each cell identified by a unique code (either a string or an integer). This hierarchical grid system allows cells to be combined into larger cells or subdivided into smaller ones, facilitating efficient geospatial data processing. 
+To achieve this division, you will use the Discrete Global Grid H3. H3 organizes the world into a grid of equal-sized hexagonal cells, with each cell identified by a unique code (either a string or an integer). This hierarchical grid system allows cells to be combined into larger cells or subdivided into smaller ones, facilitating efficient geospatial data processing.
 
 H3 offers 16 different resolutions for dividing areas into hexagons, ranging from resolution 0, where the world is segmented into 122 large hexagons, to resolution 15. At this resolution, each hexagon is less than a square meter, covering the world with approximately 600 trillion hexagons. You can read more about resolutions [here](https://h3geo.org/docs/core-library/restable/) . For our task, we will use resolution 8, where the size of each hexagon is about 0.7 sq. km (0.3 sq. miles).
 
 As a source of the trips data you will use `TLC_YELLOW_TRIPS_2014` and `TLC_YELLOW_TRIPS_2015` tables from the CARTO listing. We are interested in the following fields:
 
-* Pickup Time
-* Dropoff Time
-* Distance
-* Pickup Location
-* Dropoff Location
-* Total Amount
+  * Pickup Time
+  * Dropoff Time
+  * Distance
+  * Pickup Location
+  * Dropoff Location
+  * Total Amount
 
 First, specify the default Database, Schema and the Warehouse:
 
@@ -226,10 +229,11 @@ First, specify the default Database, Schema and the Warehouse:
 USE advanced_analytics.public;
 USE WAREHOUSE my_wh;
 ```
+
 Since CARTO's TABLE s contain raw data you might want to clean it before storing. In the following query you will do a few data cleaning steps:
 
-* Remove rows that are outside of latitude/longitude allowed values
-* Keep only trips with a duration longer than one minute and distances more than 10 meters.
+  * Remove rows that are outside of latitude/longitude allowed values
+  * Keep only trips with a duration longer than one minute and distances more than 10 meters.
 
 Since you are interested in trip data for 2014 and 2015 you need to union `TLC_YELLOW_TRIPS_2014` and `TLC_YELLOW_TRIPS_2015` tables. On average, the execution time on the LARGE warehouse is under 4 minutes.
 
@@ -272,6 +276,7 @@ WHERE
     AND ST_DISTANCE(ST_POINT(PICKUP_LONGITUDE, PICKUP_LATITUDE), ST_POINT(DROPOFF_LONGITUDE, DROPOFF_LATITUDE)) > 10
     AND TIMEDIFF(MINUTE, TO_TIMESTAMP(PICKUP_DATETIME::VARCHAR), TO_TIMESTAMP(DROPOFF_DATETIME::VARCHAR)) > 1;
 ```
+
 Now you will create a table where, for each pair of timestamp/H3, we calculate the number of trips. You will strip off minutes and seconds and keep only hours.
 
 ```sql
@@ -284,6 +289,7 @@ count(*) AS pickups
 FROM advanced_analytics.public.ny_taxi_rides
     GROUP BY 1, 2;
 ```
+
 Since on resolution 8, you might have more than 1000 hexagons for New York, to speed; up the training process, you will keep only hexagons that had more than 1M pickups in 2014. This is shown in the following code block.
 
 ```sql
@@ -300,6 +306,7 @@ FROM advanced_analytics.public.ny_taxi_rides_h3 t1
     INNER JOIN all_hexagons t2 ON t1.h3 = t2.h3
     WHERE total_pickups >= 1000000;
 ```
+
 It's important to remember that if the raw data lacks records for a specific hour and area combination, the aggregated data for that period should be marked as 0. This step is crucial for accurate time series prediction. Run the following query to add records indicating that there were zero trips for any H3 location and timestamp pair without recorded trips.
 
 ```sql
@@ -319,9 +326,10 @@ FROM all_dates_hexagons t1
     LEFT JOIN advanced_analytics.public.ny_taxi_rides_h3 t2
         ON t1.pickup_time = t2.pickup_time AND t1.h3 = t2.h3;
 ```
-###    Step 4. Data Enrichment
 
-In this step, you will enhance our dataset with extra features that could improve the accuracy of our predictions. The Cortex model for time series automatically encodes days of the week as a separate feature, but it makes sense to consider that public or school holidays could affect the demand for taxi services. Likewise, areas hosting sporting events might experience a surge in taxi pickups. To incorporate this insight, you will use data from [PredictHQ - Quickstart Demo](https://app.snowflake.com/marketplace/listing/GZSTZ3TGTNLQM/predicthq-quickstart-demo) listing, which provides information on events in New York for the years 2014-2015. 
+## Step 3. Data Enrichment
+
+In this step, you will enhance our dataset with extra features that could improve the accuracy of our predictions. The Cortex model for time series automatically encodes days of the week as a separate feature, but it makes sense to consider that public or school holidays could affect the demand for taxi services. Likewise, areas hosting sporting events might experience a surge in taxi pickups. To incorporate this insight, you will use data from [PredictHQ - Quickstart Demo](https://app.snowflake.com/marketplace/listing/GZSTZ3TGTNLQM/predicthq-quickstart-demo) listing, which provides information on events in New York for the years 2014-2015.
 
 Run the following query to enrich the data with holiday, and event information. For sports events, you will include only those with a high rank.
 
@@ -359,7 +367,7 @@ FROM advanced_analytics.public.ny_taxi_rides_h3 t1
         AND t1.h3 = h3_point_to_cell_string(t4.geo, 8);
 ```
 
-## Step 5. Training and Prediction
+## Step 4. Training and Prediction
 
 In this step, you'll divide our dataset into two parts: the Training set and the Prediction set. The Training set will be used to train our machine learning model. It will include data from the entirety of 2014 and part of 2015, going up to June 5th, 2015. Run the following query to create the Training set:
 
@@ -370,6 +378,7 @@ SELECT *
 FROM advanced_analytics.public.ny_taxi_rides_h3
     WHERE date(pickup_time) < date('2015-06-05 12:00:00');
 ```
+
 The prediction set, on the other hand, will contain data for one week starting June 5th, 2015. This setup allows us to make predictions on data that wasn't used during training.
 
 ```sql
@@ -396,7 +405,7 @@ timestamp_colname => 'pickup_time',
 target_colname => 'pickups');
 ```
 
-Now you will predict the "future" demand for one week of test data. Run the following command to forecast demand for each H3 cell ID and store your results in the "forecasts" table. 
+Now you will predict the "future" demand for one week of test data. Run the following command to forecast demand for each H3 cell ID and store your results in the "forecasts" table.
 
 Similar to what you did in the training step, you specify the data the model should use to generate its forecasts (`ny_taxi_rides_h3_predict`) and indicate which columns to use for identifying unique H3 and for timestamps.
 
@@ -440,6 +449,7 @@ BEGIN
         TABLE(RESULT_SCAN(:query_id));
 END;
 ```
+
 Create a table with predicted and actual results:
 
 ```sql
@@ -454,6 +464,7 @@ FROM advanced_analytics.public.ny_taxi_rides_model_forec as t t1
         ON t1.h3 = t2.h3
         AND t1.pickup_time = t2.pickup_time;
 ```
+
 Now you will generate evaluation metrics and store them in the `ny_taxi_rides_metrics` table:
 
 ```sql
@@ -479,16 +490,19 @@ FROM advanced_analytics.public.ny_taxi_rides_metrics
     WHERE error_metric::string = 'SMAPE'
         Order by 2 Asc;
 ```
-#    Step 6. Visualization and analysis
+
+## Step 5. Visualization and analysis
+
 In this step, you will visualize the actual and predicted results and consider how you can improve our model. Open `Projects > Streamlit > + Streamlit App`. Give the new app a name, for example `Demand Prediction - model analysis` , and pick `ADVANCED_ANALYTICS.PUBLIC` as an app location.
 
-![Image](images/image_006.png)
+<img src="images/image_006.png" alt="alt text" width="45%">
 
 Click on the packages tab and add `pydeck`, `branca` and `plotly` to the list of packages as our app will be using them.
 
-![Image](images/image_007.png)
+<img src="images/image_007.png" alt="alt text" width="45%">
 
 Then copy-paste the following code to the editor and click `Run` :
+
 ```python
 # ==============================================================================
 # 1. IMPORTS
@@ -728,17 +742,18 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
 After clicking `Run` button you will see the following UI:
 
-![Image](images/image_008.png)
+<img src="images/image_008.png" alt="alt text" width="45%">
 
-Click `Expand to see SMAPE metric` in the sidebar and find hexagons with good/bad MAPE values. Find them on the map using `H3 cells to display` dropdown. 
+Click `Expand to see SMAPE metric` in the sidebar and find hexagons with good/bad MAPE values. Find them on the map using `H3 cells to display` dropdown.
 
 As you can see, overall, the model is quite good, with SMAPE below 0.3 for most of the hexagons. Even with its current quality, the model can already be used to predict future demand. However, let's still consider how you can improve it.
 
-The worst predictions are for hexagons corresponding to LaGuardia Airport ( `882a100e25fffff` , `882a100f57fffff` , `882a100f53fffff` ). To address this, you might consider adding information about flight arrivals and departures, which could improve the model's quality. It is a bit surprising to see poor quality at the hexagon `882a100897fffff` , which is close to Central Park. However, it seems that June 7th is the main driver of the poor prediction, as model significantly underpredicted during both day and night hours. 
+The worst predictions are for hexagons corresponding to LaGuardia Airport ( `882a100e25fffff` , `882a100f57fffff` , `882a100f53fffff` ). To address this, you might consider adding information about flight arrivals and departures, which could improve the model's quality. It is a bit surprising to see poor quality at the hexagon `882a100897fffff` , which is close to Central Park. However, it seems that June 7th is the main driver of the poor prediction, as model significantly underpredicted during both day and night hours.
 
-![Image](images/image_009.png)
+<img src="images/image_009.png" alt="alt text" width="45%">
 
 You have information about public and school holidays and sports events among our features. Perhaps adding information about other local events, such as festivals, could improve the overall quality of the model.
 
