@@ -1,14 +1,15 @@
 ## Customer Reviews Sentiment Analysis
 
-This lab will show you how to inject AI into your spatial analysis using Cortex Large Language Model (LLM) Functions to help you take your product and marketing strategy to the next level. Specifically, you're going to build a data application that gives food delivery companies the ability to explore the sentiments of customers in the Greater Bay Area. To do this, you use the Cortex LLM Complete Function to classify customer sentiment and extract the underlying reasons for that sentiment from a customer review. Then you use the [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/) for visualizing and exploring spatial data. 
+This lab will show you how to inject AI into your spatial analysis using Cortex Large Language Model (LLM) Functions to help you take your product and marketing strategy to the next level. Specifically, you're going to build a data application that gives food delivery companies the ability to explore the sentiments of customers in the Greater Bay Area. To do this, you use the Cortex LLM Complete Function to classify customer sentiment and extract the underlying reasons for that sentiment from a customer review. Then you use the [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/) for visualizing and exploring spatial data.
 
 ## Step 1. Data acquisition
 
-To complete the project you will use a synthetic dataset with delivery orders with the feedback for each order. We will simplify the task of data acquisition by putting the dataset in an S3 bucket, which you will connect as an external stage. 
+To complete the project you will use a synthetic dataset with delivery orders with the feedback for each order. We will simplify the task of data acquisition by putting the dataset in an S3 bucket, which you will connect as an external stage.
 
-First specify the default Database, Schema and the Warehouse and create a file format that corresponds to the format of the trip and holiday data we stored in S3. 
+First specify the default Database, Schema and the Warehouse and create a file format that corresponds to the format of the trip and holiday data we stored in S3.
 
 Run the following queries:
+
 ```sql
 USE advanced_analytics.public;
 
@@ -17,6 +18,7 @@ CREATE OR REPLACE FILE FORMAT csv_format_nocompression TYPE = csv
 FIELD_OPTIONALLY_ENCLOSED_BY = '"' FIELD_DELIMITER = ','
 skip_header = 1;
 ```
+
 Now you will create an external stage using S3 with test data:
 
 ```sql
@@ -42,11 +44,12 @@ AS
     @advanced_analytics.public.aa_stage/food_delivery_reviews.csv
     (file_format = > 'csv_format_nocompression');
 ```
- Congratulations! Now you have `Orders_reviews` table containing 100K Orders with reviews.
+
+Congratulations\! Now you have `Orders_reviews` table containing 100K Orders with reviews.
 
 ## Step 2. Preparing and running the prompt
 
-In this step, you will prepare the prompt to run the analysis. For the task at hand, you will use the `CORTEX.COMPLETE()` function because it is purpose-built to power data processing and data generation tasks. First, let's create a cortex role. In the query below change the username AA to the username you used to login to Snowflake. 
+In this step, you will prepare the prompt to run the analysis. For the task at hand, you will use the `CORTEX.COMPLETE()` function because it is purpose-built to power data processing and data generation tasks. First, let's create a cortex role. In the query below change the username AA to the username you used to login to Snowflake.
 
 ```sql
 CREATE OR REPLACE ROLE cortex_user_role;
@@ -55,10 +58,10 @@ cortex_user_role;
 GRANT ROLE cortex_user_role TO USER <AA>;
 ```
 
-You are now ready to provide `CORTEX.COMPLETE()` functions with the instructions on the analysis that you want to produce. Specifically, using a raw table with reviews you'll create a new table with two additional columns: Overall Sentiment and Sentiment Categories which are composed of two different CORTEX.COMPLETE ( ) prompts. For complex aspect-based sentiment analysis like this, you are going to pick the mixtral-8x7b, a very capable open-source LLM created by Mistral AI. 
+You are now ready to provide `CORTEX.COMPLETE()` functions with the instructions on the analysis that you want to produce. Specifically, using a raw table with reviews you'll create a new table with two additional columns: Overall Sentiment and Sentiment Categories which are composed of two different CORTEX.COMPLETE ( ) prompts. For complex aspect-based sentiment analysis like this, you are going to pick the mixtral-8x7b, a very capable open-source LLM created by Mistral AI.
 
-* Overall Sentiment assigns an overall rating of the delivery: Very Positive, Positive, Neutral, Mixed, Negative, Very Negative, or other.
-* Sentiment Categories give us richer insights into why the overall rating is based on Food Cost, Quality, and Delivery Time.
+  * Overall Sentiment assigns an overall rating of the delivery: Very Positive, Positive, Neutral, Mixed, Negative, Very Negative, or other.
+  * Sentiment Categories give us richer insights into why the overall rating is based on Food Cost, Quality, and Delivery Time.
 
 As a general rule when writing a prompt, the instructions have to be simple, clear, and complete. For example, you will notice that you clearly define the task as classifying customer reviews into specific categories. It's important to define constraints of the desired output, otherwise the LLM will produce unexpected output. Below, you specifically tell the LLM to categorize anything it is not sure of as Other, and explicitly tell it to respond in JSON format.
 
@@ -138,10 +141,9 @@ FROM
     ADVANCED_ANALYTICS.PUBLIC.ORDERS_REVIEWS;
 ```
 
+If you look inside of `advanced_analytics.public.orders_reviews_sentiment_test` you'll notice two new columns: `sentiment_assessment` and `sentiment_categories` `sentiment_assessment` contains overall assessment of the sentiment based on the review and `sentiment_categories` has an evaluation of each of three components individually: cost, quality and delivery time.
 
-If you look inside of `advanced_analytics.public.orders_reviews_sentiment_test` you'll notice two new columns: `sentiment_assessment` and `sentiment_categories` `sentiment_assessment` contains overall assessment of the sentiment based on the review and `sentiment_categories` has an evaluation of each of three components individually: cost, quality and delivery time. 
-
-![Image](images/image_010.png)
+<img src="images/image\_010.png" alt="alt text" width="45%"\>
 
 Now when you see that the results stick to the expected format, you can run the query above without the `top 10` limit. This query might take some time to complete, so to save time for this quickstart we've ran it for you in advance and stored results which you can import into new table by running following two queries:
 
@@ -167,6 +169,7 @@ COPY INTO ADVANCED_ANALYTICS.PUBLIC.ORDERS_REVIEWS_SENTIMENT
 FROM @advanced_analytics.public.aa_stage/food_delivery_reviews.csv
 FILE_FORMAT = (FORMAT_NAME = csv_format_nocompression);
 ```
+
 ## Step 3. Data transformation
 
 Now when you have a table with sentiment, you need to parse JSONs to store each component of the score into a separate column and convert the scoring provided by the LLM into numeric format, so you can easily visualize it. Run the following query:
@@ -239,17 +242,19 @@ FROM
             advanced_analytics.public.orders_reviews_sentiment
     );
 ```
+
 ## Step 4. Data visualization
 
 In this step, you will visualize the scoring results on the map. Open `Projects > Streamlit > Streamlit App` . Give the new app a name, for example `Sentiment analysis - results`, and pick `ADVANCED_ANALYTICS.PUBLIC` as an app location.
 
-![Image](images/image_011.png)
+<img src="images/image\_011.png" alt="alt text" width="45%"\>
 
 Click on the packages tab and add `pydeck` and `branca` to the list of packages as our app will be using them.
 
-![Image](images/image_012.png)
+<img src="images/image\_012.png" alt="alt text" width="45%"\>
 
 Then copy-paste the following code to the editor and click `Run` :
+
 ```python
 # =============================================================================
 # 1. IMPORTS
@@ -428,29 +433,29 @@ if __name__ == "__main__":
 
 After clicking `Run` button you will see the following UI:
 
-![Image](images/image_013.png)
+<img src="images/image\_013.png" alt="alt text" width="45%"\>
 
-You can start with the overall analysis of the order density. When you select "`DELIVERY_LOCATION`" as a Dimension and "`ORDERS`" as a Measure you'll see what areas correspond to the high number of orders. You can use scale 7 and zoom in to identify clear clusters of where the most deliveries are occurring. In this case you see most deliveries are in Santa Clara, San Jose, and the San Francisco Bay. In particular, the area on the San Francisco peninsula looks to be an area of interest. Zooming in further you can see a dense area of delivery orders. \
+You can start with the overall analysis of the order density. When you select "`DELIVERY_LOCATION`" as a Dimension and "`ORDERS`" as a Measure you'll see what areas correspond to the high number of orders. You can use scale 7 and zoom in to identify clear clusters of where the most deliveries are occurring. In this case you see most deliveries are in Santa Clara, San Jose, and the San Francisco Bay. In particular, the area on the San Francisco peninsula looks to be an area of interest. Zooming in further you can see a dense area of delivery orders. \\
 
-![Image](images/image_014.png)
+<img src="images/image\_014.png" alt="alt text" width="45%"\>
 
-Using a finer H3 resolution, 8 shows how the delivery densities are distributed more finely. From this resolution, you can see the orders are concentrated in Daly City and proceed down to San Bruno. Additionally, in the North, the majority of the orders are coming from the stretch of the Sunset District to the Mission District. 
+Using a finer H3 resolution, 8 shows how the delivery densities are distributed more finely. From this resolution, you can see the orders are concentrated in Daly City and proceed down to San Bruno. Additionally, in the North, the majority of the orders are coming from the stretch of the Sunset District to the Mission District.
 
-![Image](images/image_015.png)
+<img src="images/image\_015.png" alt="alt text" width="45%"\>
 
 Now that you know where the majority of orders are coming from, let's analyze whether there are interesting differences in customer satisfaction depending on where they are located. Select `DELIVERY LOCATION` as a dimension and `SENTIMENT_SCORE` as a Measure to see the overall sentiment score that the Cortex LLM Complete Function generated. You can notice that the customers are mostly satisfied in the areas of Daly City down to San Jose, in the Santa Rosa area, and around Dublin. You also see that the area between these is mostly showing unhappy customers.
 
-![Image](images/image_016.png)
+<img src="images/image\_016.png" alt="alt text" width="45%"\>
 
 In order to understand why customers in this area are unhappy, you analyze the aspect based sentiment results of the Cortex LLM Complete Function generated for the categories of interest: food cost, delivery time, and the food quality. If you focus purely on the customers that were unhappy, you see that the primary reasons are food quality and food cost getting poor scores. Essentially, the food is not worth the cost and delivery time being fast does not make up for this. Check visualizations using the following combinations of parameters:
 
-![Image](images/image_017.png)
+<img src="images/image\_017.png" alt="alt text" width="45%"\>
 
-If you look at all H3 cells where food quality was high, the average sentiment score is also generally high. Again, you can see there are no cells where customers felt the food quality was above average in the greater Berkeley area. This could indicate either that high quality delivery food is uncommon or that the customers in these areas have higher expectations for delivery food. You can also analyze what areas are getting higher scores for each of the categories and how it correlates with the overall sentiment scores for restaurants in each area. 
+If you look at all H3 cells where food quality was high, the average sentiment score is also generally high. Again, you can see there are no cells where customers felt the food quality was above average in the greater Berkeley area. This could indicate either that high quality delivery food is uncommon or that the customers in these areas have higher expectations for delivery food. You can also analyze what areas are getting higher scores for each of the categories and how it correlates with the overall sentiment scores for restaurants in each area.
 
 ## Use the DORA grading function to receive credit for creating the tables.
 
---Execute DORA grading function to verify tables created
+\--Execute DORA grading function to verify tables created
 
 ```sql
 use role ACCOUNTADMIN;
@@ -469,6 +474,7 @@ select util_db.public.se_grader(step, (actual = expected),
     description
     );
 ```
+
 ## Clean up;
 
-Now that we’ve completed the work for this hands-on practice, you can clean up the databases by dropping ADVANCED_ANALYTICS , CARTO_ACADEMY , and PREDICTHQ_DEMO . You can also drop the CORTEX_USER_ROLE and Demand Prediction - model analysis and Sentiment analysis - results Streamlit apps.
+Now that we’ve completed the work for this hands-on practice, you can clean up the databases by dropping ADVANCED\_ANALYTICS , CARTO\_ACADEMY , and PREDICTHQ\_DEMO . You can also drop the CORTEX\_USER\_ROLE and Demand Prediction - model analysis and Sentiment analysis - results Streamlit apps.
