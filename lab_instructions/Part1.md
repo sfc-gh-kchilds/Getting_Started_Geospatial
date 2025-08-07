@@ -23,15 +23,16 @@ You will need to create a Virtual Warehouse to run queries.
 
 ```sql
 use role accountadmin;
+
 CREATE WAREHOUSE IF NOT EXISTS MY_WH
-WAREHOUSE_SIZE = 'LARGE'
-AUTO_RESUME = true
-AUTO_SUSPEND = 60
-ENABLE_QUERY_ACCELERATION = false;
-WAREHOUSE_TYPE = 'STANDARD'
-MIN_CLUSTER_COUNT = 1
-MAX_CLUSTER_COUNT = 1
-SCALING_POLICY = 'STANDARD';
+    WAREHOUSE_SIZE = 'LARGE'
+    AUTO_RESUME = true
+    AUTO_SUSPEND = 60
+    ENABLE_QUERY_ACCELERATION = false;
+    WAREHOUSE_TYPE = 'STANDARD'
+    MIN_CLUSTER_COUNT = 1
+    MAX_CLUSTER_COUNT = 1
+    SCALING_POLICY = 'STANDARD';
 
 USE WAREHOUSE my_wh;
 ```
@@ -46,7 +47,7 @@ Navigate to the query editor by clicking on Worksheets on the top left navigatio
 Create a new database and schema where you will store datasets in the GEOMETRY data type.
 
 ```sql
-CREATE DATABasE advanced_analytics;
+CREATE Database advanced_analytics;
 -- Set the working datab as e schema
 USE advanced_analytics.public;
 ALTER SESSION SET GEOGRAPHY_OUTPUT_FORMAT = 'WKT';
@@ -54,121 +55,6 @@ ALTER SESSION SET USE_CACHED_RESULT = FALSE;
 ```
 
 ### Set up DORA grading in your demo account (if you haven’t already done so
-
-### in a previous hands-on practice session)
-
-### API integration for submitting grading external function calls
-
-In your Snowflake account, open a new SQL worksheet and run the following code:
-
-````sql
-use role accountadmin;
-create or replace api integration dora_api_integration
-api_provider = aws_api_gateway
-api_aws_role_arn =
-'arn:aws:iam::321463406630:role/snowflakeLearner as sumedRole
-'
-enabled = true
-api_allowed_prefixes =
-('https:-- awy6hshxy4.execute-api.us-west-2.amazonaws.com/de
-    v/edu_dora');
-    ```
-This code will create an API integration in your Snowflake account under the; ACCOUNTADMIN role. To confirm that the integration was created, you can run the following:
-```sql
-show api integrations LIKE 'dora_api_integration';
-````
-
-### Greeting external function for submitting SE information for linking to Freestyle
-
-Next, create the se\_greeting function. This function will identify the user in the grading system so that their results can be tied back to Freestyle.
-
-```sql
-use role accountadmin;
-create datab as e if not exists util_db;
-create or replace external function
-util_db.public.se_greeting(
-    email varchar
-    , firstname varchar
-    , middlename varchar
-    , l as tname varchar)
-return s variant
-api_integration = dora_api_integration
-context_headers = (current_timestamp,current_account,
-    current_statement, current_account_name)
-as
-    'https:-- awy6hshxy4.execute-api.us-west-2.amazonaws.com/dev
-    /edu_dora/greeting';
-```
-
-The se\_greeting function will be located in the UTIL\_DB.PUBLIC schema in your account. If you don't see the function, please refresh the objects in the Databases section of your account. In addition, ensure you are using the ACCOUNTADMIN role.
-
-```sql
-Call the se_greeting function once to identify your activity in the system.
-use role accountadmin;
-
---Please edit the SQL statement to provide your email address (@snowflake.com), first, middle (optional), and last names
---Remove the angle brackets and put single quotes around each value
--- **When entering your names:**
---Use mixed case
---Don't use ALL CAPITAL LETTERS
---Don't use all lowercase letters
---Don't use CamelCase without spaces between your names if you have more than one
---You must enter both a first and last name, and single letters don't count as names
---Middle names are optional, so if you don't want to provide one replace <middle name> with ''
---You can use accents or letters from any language
---You can use as many words as you want in your name, and please put spaces between them
-
-use warehouse <warehouse name>;
-select util_db.public.se_greeting(<email>, <first name>,
-    <middle name>, <l as t name>);
---Example
---select
-util_db.public.se_greeting('test.USE r@snowflake.com',
-    'Test', '', 'USE r');
-```
-
-### Grader  external function for submitting grading calls
-
-Finally, create the se\_grader function. This function will be used for grading (i.e., validating the successful completion of steps or tasks in the account).
-
-```sql
-use role accountadmin;
-create or replace external function
-util_db.public.se_grader(
-    step varchar
-    , p as sed boolean
-    , actual integer
-    , expected integer
-    , description varchar)
-return s variant
-api_integration = dora_api_integration
-context_headers = (current_timestamp,current_account,
-    current_statement,current_account_name)
-as
-    'https:-- awy6hshxy4.execute-api.us-west-2.amazonaws.com/dev
-    /edu_dora/grader'
-    ;
-    The se_grader function will be located in the UTIL_DB.PUBLIC schema in your account.
-```
-
-If you don't see the function, please refresh the objects in the Databases section of your account. In addition, ensure you are using the ACCOUNTADMIN role. To confirm that the auto-grader is functioning as intended, open a new SQL worksheet and run the following code:
-
-```sql
-use role accountadmin;
-use datab as e util_db;
-use schema public;
-use warehouse <warehouse name>;
-
-select se_grader(step, (actual = expected), actual,
-        expected, description) as graded_results from (SELECT
-    'DORA_IS_WORKING' as step
-        ,( select 123) as actual
-    ,123 as expected
-    ,'Dora is working!' as description
-    );
-```
-
-If the auto-grader is correctly provisioned, you should see a GRADED\_RESULTS column with several pieces of information, including a checkbox and a message "description": "Dora is working\!" .
 
 # Forecasting time series on a map
 
@@ -280,50 +166,78 @@ WHERE
 Now you will create a table where, for each pair of timestamp/H3, we calculate the number of trips. You will strip off minutes and seconds and keep only hours.
 
 ```sql
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_h3 AS
-SELECT TIME_SLICE(pickup_time, 60, 'minute', 'START') AS
-pickup_time,
-H3_POINT_TO_CELL_string(pickup_location, 8) AS h3,
-count(*) AS pickups
-FROM advanced_analytics.public.ny_taxi_rides
-    GROUP BY 1, 2;
+CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3 AS
+    SELECT TIME_SLICE(pickup_time, 60, 'minute', 'START') AS pickup_time,
+        H3_POINT_TO_CELL_string(pickup_location, 8) AS h3,
+        count(*) AS pickups
+        FROM advanced_analytics.public.ny_taxi_rides
+        GROUP BY 1, 2;
 ```
 
 Since on resolution 8, you might have more than 1000 hexagons for New York, to speed; up the training process, you will keep only hexagons that had more than 1M pickups in 2014. This is shown in the following code block.
 
 ```sql
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_h3
-AS WITH all_hexagons AS
-    (SELECT h3,
-    SUM(pickups) AS total_pickups
-    FROM advanced_analytics.public.ny_taxi_rides_h3
-    WHERE year(pickup_time) = 2014;
-GROUP BY 1)
-SELECT t1.*
-FROM advanced_analytics.public.ny_taxi_rides_h3 t1
-    INNER JOIN all_hexagons t2 ON t1.h3 = t2.h3
-    WHERE total_pickups >= 1000000;
+CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3 AS
+-- Use a Common Table Expression (CTE) to find the hexagons with a high volume of pickups
+WITH all_hexagons AS (
+    SELECT
+        h3,
+        SUM(pickups) AS total_pickups
+    FROM
+        advanced_analytics.public.ny_taxi_rides_h3
+    WHERE
+        YEAR(pickup_time) = 2014
+    GROUP BY
+        h3
+)
+-- Select all original data for the hexagons identified in the CTE
+SELECT
+    t1.*
+FROM
+    advanced_analytics.public.ny_taxi_rides_h3 AS t1
+    INNER JOIN all_hexagons AS t2 ON t1.h3 = t2.h3
+WHERE
+    t2.total_pickups >= 1000000;
 ```
 
 It's important to remember that if the raw data lacks records for a specific hour and area combination, the aggregated data for that period should be marked as 0. This step is crucial for accurate time series prediction. Run the following query to add records indicating that there were zero trips for any H3 location and timestamp pair without recorded trips.
 
 ```sql
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_h3 AS
-    WITH all_dates_hexagons AS (
-    SELECT DATEADD(HOUR, VALUE::int, '2014-01-01'::timestamp) AS
-    pickup_time, h3
-    FROM TABLE(FLATTEN(ARRAY_GENERATE_RANGE(0, DATEDIFF('hour',
-                    '2014-01-01', '2015-12-31 23:59:00') + 1)))
-        CROSS JOIN (SELECT DISTINCT h3 FROM
-        advanced_analytics.public.ny_taxi_rides_h3)
-    )
-SELECT t1.pickup_time,
-t1.h3, IF F(t2.pickups IS NOT NULL, t2.pickups, 0) AS pickups
-FROM all_dates_hexagons t1
-    LEFT JOIN advanced_analytics.public.ny_taxi_rides_h3 t2
+CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3 AS
+
+-- Use a Common Table Expression (CTE) to generate a complete timeline
+-- for every unique hexagon.
+WITH all_dates_hexagons AS (
+    SELECT
+        -- Generate a continuous series of hourly timestamps from 2014 to 2015
+        DATEADD(
+            HOUR,
+            VALUE::int,
+            '2014-01-01'::timestamp
+        ) AS pickup_time,
+        h3
+    FROM
+        -- This generates a sequence of numbers for every hour in the 2-year range
+        TABLE(FLATTEN(ARRAY_GENERATE_RANGE(0, DATEDIFF('hour', '2014-01-01', '2015-12-31 23:59:00') + 1)))
+        -- Cross join with every unique hexagon to create a complete placeholder table
+        CROSS JOIN (
+            SELECT DISTINCT
+                h3
+            FROM
+                advanced_analytics.public.ny_taxi_rides_h3
+        )
+)
+
+-- Join the complete placeholder data with the actual pickup data
+SELECT
+    t1.pickup_time,
+    t1.h3,
+    -- If a matching record exists in the original table, use its pickup count.
+    -- Otherwise, default to 0. (Corrected from 'IF F' to 'IFF')
+    IFF(t2.pickups IS NOT NULL, t2.pickups, 0) AS pickups
+FROM
+    all_dates_hexagons AS t1
+    LEFT JOIN advanced_analytics.public.ny_taxi_rides_h3 AS t2
         ON t1.pickup_time = t2.pickup_time AND t1.h3 = t2.h3;
 ```
 
@@ -334,37 +248,68 @@ In this step, you will enhance our dataset with extra features that could improv
 Run the following query to enrich the data with holiday, and event information. For sports events, you will include only those with a high rank.
 
 ```sql
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_h3 AS
-SELECT t1.*,
-IF F(t2.category = 'school-holidays', 'school-holidays',
-    'None') AS school_holiday,
-IF F(t3.category = 'public-holidays',
-    ARRAY_TO_STRING(t3.labels, ', '), 'None') AS public_holiday,
-IF F(t4.category = 'sports', t4.labels[0]::string, 'None')
-AS sport_event
-FROM advanced_analytics.public.ny_taxi_rides_h3 t1
-    LEFT JOIN (SELECT distinct title, category, event_start,
-        event_end, labels
+CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3 AS
+SELECT
+    t1.*,
+    -- Add a column for school holidays
+    IFF(
+        t2.category = 'school-holidays',
+        'school-holidays',
+        'None'
+    ) AS school_holiday,
+    -- Add a column for public holidays, listing the specific holiday names
+    IFF(
+        t3.category = 'public-holidays',
+        ARRAY_TO_STRING(t3.labels, ', '),
+        'None'
+    ) AS public_holiday,
+    -- Add a column for the specific type of sports event
+    IFF(
+        t4.category = 'sports',
+        t4.labels[0]::string,
+        'None'
+    ) AS sport_event
+FROM
+    advanced_analytics.public.ny_taxi_rides_h3 AS t1
+    -- Join to find school holidays in New York
+    LEFT JOIN (
+        SELECT DISTINCT
+            title,
+            category,
+            event_start,
+            event_end,
+            labels
         FROM
-        PREDICTHQ_DEMO.PREDICTHQ.PREDICTHQ_EVENTS_SNOWFLAKE_SUMMIT_2024
-        WHERE category = 'school-holidays' and title ilike
-        'New York%') t2
-        ON DATE(t1.pickup_time) between t2.event_start AND
-    t2.event_end
-    LEFT JOIN (SELECT distinct title, category, event_start,
-        event_end, labels
+            PREDICTHQ_DEMO.PREDICTHQ.PREDICTHQ_EVENTS_SNOWFLAKE_SUMMIT_2024
+        WHERE
+            category = 'school-holidays' AND title ILIKE 'New York%'
+    ) AS t2
+        ON DATE(t1.pickup_time) BETWEEN t2.event_start AND t2.event_end
+    -- Join to find national public holidays
+    LEFT JOIN (
+        SELECT DISTINCT
+            title,
+            category,
+            event_start,
+            event_end,
+            labels
         FROM
-        PREDICTHQ_DEMO.PREDICTHQ.PREDICTHQ_EVENTS_SNOWFLAKE_SUMMIT_2024
-        WHERE array_contains('holiday-national'::variant,
-            labels)) t3
-        ON DATE(t1.pickup_time) between t3.event_start AND
-    t3.event_end
-    LEFT JOIN (SELECT * from
-        PREDICTHQ_DEMO.PREDICTHQ.PREDICTHQ_EVENTS_SNOWFLAKE_SUMMIT_2024
-        WHERE phq_rank > 70 and category = 'sports') t4
-        ON t1.pickup_time = date_trunc('hour', t4.event_start)
-        AND t1.h3 = h3_point_to_cell_string(t4.geo, 8);
+            PREDICTHQ_DEMO.PREDICTHQ.PREDICTHQ_EVENTS_SNOWFLAKE_SUMMIT_2024
+        WHERE
+            ARRAY_CONTAINS('holiday-national'::variant, labels)
+    ) AS t3
+        ON DATE(t1.pickup_time) BETWEEN t3.event_start AND t3.event_end
+    -- Join to find high-ranking sports events happening at the same time and location
+    LEFT JOIN (
+        SELECT
+            *
+        FROM
+            PREDICTHQ_DEMO.PREDICTHQ.PREDICTHQ_EVENTS_SNOWFLAKE_SUMMIT_2024
+        WHERE
+            phq_rank > 70 AND category = 'sports'
+    ) AS t4
+        ON t1.pickup_time = DATE_TRUNC('hour', t4.event_start)
+        AND t1.h3 = H3_POINT_TO_CELL_STRING(t4.geo, 8);
 ```
 
 ## Step 4. Training and Prediction
@@ -372,37 +317,41 @@ FROM advanced_analytics.public.ny_taxi_rides_h3 t1
 In this step, you'll divide our dataset into two parts: the Training set and the Prediction set. The Training set will be used to train our machine learning model. It will include data from the entirety of 2014 and part of 2015, going up to June 5th, 2015. Run the following query to create the Training set:
 
 ```sql
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_h3_train AS
-SELECT *
-FROM advanced_analytics.public.ny_taxi_rides_h3
-    WHERE date(pickup_time) < date('2015-06-05 12:00:00');
+CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3_train AS
+SELECT
+    *
+FROM
+    advanced_analytics.public.ny_taxi_rides_h3
+WHERE
+    DATE(pickup_time) < DATE('2015-06-05 12:00:00');
 ```
 
 The prediction set, on the other hand, will contain data for one week starting June 5th, 2015. This setup allows us to make predictions on data that wasn't used during training.
 
 ```sql
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_h3_predict AS
-SELECT h3,
-pickup_time,
-SCHOOL_HOLIDAY,
-PUBLIC_HOLIDAY,
-SPORT_EVENT
-FROM advanced_analytics.public.ny_taxi_rides_h3
-    WHERE date(pickup_time) >= date('2015-06-05')
-        AND date(pickup_time) < date('2015-06-12');
+CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3_predict AS
+SELECT
+    h3,
+    pickup_time,
+    SCHOOL_HOLIDAY,
+    PUBLIC_HOLIDAY,
+    SPORT_EVENT
+FROM
+    advanced_analytics.public.ny_taxi_rides_h3
+WHERE
+    DATE(pickup_time) >= DATE('2015-06-05')
+    AND DATE(pickup_time) < DATE('2015-06-12');
 ```
 
 Now that you have the Training and Prediction SETs, you can run your model training step. In this step, you will use Snowflake's Cortex ML Forecasting function to train your `ny_taxi_rides_model` . You're telling the function it should train on `ny_taxi_rides_h3_train`– and that this table contains data for multiple distinct time series ( `series_colname =>‘h3'`), one for each h3 in the table. The function will now automatically train one machine learning model for each h3. Note that you are also telling the model which column in our table to use as a timestamp and which column to treat as our "target" (i.e., the column you want to forecast). On average the query below completes in about 7 minutes on the LARGE warehouse though we have seen it take as long as 30 minutes.
 
 ```sql
-CREATE OR REPLACE snowflake.ml.forecast ny_taxi_rides_model(
-input_data => system$reference('table',
-'advanced_analytics.public.ny_taxi_rides_h3_train'),
-series_colname => 'h3',
-timestamp_colname => 'pickup_time',
-target_colname => 'pickups');
+CREATE OR REPLACE SNOWFLAKE.ML.FORECAST ny_taxi_rides_model(
+    INPUT_DATA => SYSTEM$REFERENCE('TABLE', 'advanced_analytics.public.ny_taxi_rides_h3_train'),
+    SERIES_COLNAME => 'h3',
+    TIMESTAMP_COLNAME => 'pickup_time',
+    TARGET_COLNAME => 'pickups'
+);
 ```
 
 Now you will predict the "future" demand for one week of test data. Run the following command to forecast demand for each H3 cell ID and store your results in the "forecasts" table.
@@ -453,14 +402,18 @@ END;
 Create a table with predicted and actual results:
 
 ```sql
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_compare AS
-SELECT t1.h3,
-t1.pickup_time,
-t2.pickups,
-round(t1.forec as t, 0) as forec as t
-FROM advanced_analytics.public.ny_taxi_rides_model_forec as t t1
-    INNER JOIN advanced_analytics.public.ny_taxi_rides_h3 t2
+CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_compare AS
+SELECT
+    t1.h3,
+    t1.pickup_time,
+    t2.pickups,
+    -- Round the forecasted value to the nearest whole number
+    ROUND(t1.forecast, 0) AS forecast
+FROM
+    -- This table contains the output from the forecasting model
+    advanced_analytics.public.ny_taxi_rides_model_forecast AS t1
+    -- Join back to the original table to get the actual pickup counts
+    INNER JOIN advanced_analytics.public.ny_taxi_rides_h3 AS t2
         ON t1.h3 = t2.h3
         AND t1.pickup_time = t2.pickup_time;
 ```
@@ -469,15 +422,22 @@ Now you will generate evaluation metrics and store them in the `ny_taxi_rides_me
 
 ```sql
 BEGIN
-CALL ny_taxi_rides_model!show_evaluation_metrics();
-LET x : = SQLID;
-CREATE OR REPLACE TABLE
-advanced_analytics.public.ny_taxi_rides_metrics AS
-SELECT series::string as h3,
-metric_value,
-error_metric
-FROM TABLE(RESULT_SCAN(:x));
-    END;
+    -- First, call the method to show the model's evaluation metrics
+    CALL ny_taxi_rides_model!show_evaluation_metrics();
+
+    -- Capture the ID of the previous SQL statement (the CALL command)
+    LET sql_id := SQLID;
+
+    -- Create a new table to store the metrics
+    CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_metrics AS
+    SELECT
+        series::string AS h3, -- The series identifier, cast to a string
+        metric_value,         -- The calculated value of the metric
+        error_metric          -- The name of the error metric (e.g., 'MAPE', 'RMSE')
+    FROM
+        -- Use the RESULT_SCAN function to query the results of the previous CALL command
+        TABLE(RESULT_SCAN(:sql_id));
+END;
 ```
 
 The table `ny_taxi_rides_metrics` contains various metrics; please review what is available in the table. You should select a metric that allows uniform comparisons across all hexagons to understand the model's performance in each hexagon. Since trip volumes may vary among hexagons, the chosen metric should not be sensitive to absolute values. The Symmetric Mean Absolute Percentage Error ([SMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)) would be a suitable choice. Create a table with the list of hexagons and the SMAPE value for each:

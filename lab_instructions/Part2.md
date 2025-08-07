@@ -11,12 +11,19 @@ First specify the default Database, Schema and the Warehouse and create a file f
 Run the following queries:
 
 ```sql
+-- Set the default database and schema for the current session
 USE advanced_analytics.public;
 
+-- Set the virtual warehouse to be used for the session
 USE WAREHOUSE my_wh;
-CREATE OR REPLACE FILE FORMAT csv_format_nocompression TYPE = csv
-FIELD_OPTIONALLY_ENCLOSED_BY = '"' FIELD_DELIMITER = ','
-skip_header = 1;
+
+-- Create (or replace) a named file format for loading CSV files.
+-- This format can be referenced by name in COPY INTO commands.
+CREATE OR REPLACE FILE FORMAT csv_format_nocompression
+    TYPE = 'CSV'
+    FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+    FIELD_DELIMITER = ','
+    SKIP_HEADER = 1;
 ```
 
 Now you will create an external stage using S3 with test data:
@@ -53,8 +60,7 @@ In this step, you will prepare the prompt to run the analysis. For the task at h
 
 ```sql
 CREATE OR REPLACE ROLE cortex_user_role;
-GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE
-cortex_user_role;
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE cortex_user_role;
 GRANT ROLE cortex_user_role TO USER <AA>;
 ```
 
@@ -477,4 +483,4 @@ select util_db.public.se_grader(step, (actual = expected),
 
 ## Clean up;
 
-Now that we’ve completed the work for this hands-on practice, you can clean up the databases by dropping ADVANCED\_ANALYTICS , CARTO\_ACADEMY , and PREDICTHQ\_DEMO . You can also drop the CORTEX\_USER\_ROLE and Demand Prediction - model analysis and Sentiment analysis - results Streamlit apps.
+Now that we’ve completed the work for this hands-on practice, you can clean up the databases by dropping ADVANCEDANALYTICS , CARTO ACADEMY , and PREDICTHQ DEMO . You can also drop the CORTEX USER ROLE and Demand Prediction - model analysis and Sentiment analysis - results Streamlit apps.
