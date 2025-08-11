@@ -36,19 +36,11 @@ CREATE WAREHOUSE IF NOT EXISTS MY_WH
 
 USE WAREHOUSE my_wh;
 ```
-
-Navigate to the query editor by clicking on Worksheets on the top left navigation bar and choose your warehouse.
-
-  * Click the + Worksheet button in the upper right of your browser window. This will open a new window.
-  * In the new Window, make sure ACCOUNTADMIN and MY\_WH are selected in the upper right of your browser window.
-
-<img src="images/image_002.png" alt="alt text" width="45%">
-
 Create a new database and schema where you will store datasets in the GEOMETRY data type.
 
 ```sql
 CREATE Database advanced_analytics;
--- Set the working datab as e schema
+-- Set the working database schema
 USE advanced_analytics.public;
 ALTER SESSION SET GEOGRAPHY_OUTPUT_FORMAT = 'WKT';
 ALTER SESSION SET USE_CACHED_RESULT = FALSE;
