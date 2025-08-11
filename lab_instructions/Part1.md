@@ -62,7 +62,7 @@ This approach is not unique to trip forecasting but is equally applicable in var
 
 ## Step 1. Data acquisition
 
-The New York Taxi and Limousine Commission (TLC) has provided detailed, anonymized customer travel data since 2009. Painted yellow cars can pick up passengers in any of the city's five boroughs. Raw data on yellow taxi rides can be found on the TLC website . This data is divided into files by month. Each file contains detailed trip information, you can read about it here . For our project, you will use an NY Taxi dataset for the 2014-2015 years from the CARTO Academy Marketplace listing.
+The New York Taxi and Limousine Commission (TLC) has provided detailed, anonymized customer travel data since 2009. Painted yellow cars can pick up passengers in any of the city's five boroughs. Raw data on yellow taxi rides can be found on the [TLC website](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page). This data is divided into files by month. Each file contains detailed trip information, you can read about it [here](https://www.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf). For our project, you will use an NY Taxi dataset for the 2014-2015 years from the [CARTO Academy](https://app.snowflake.com/marketplace/listing/GZT0Z4CM1E9J2/carto-carto-academy-data-for-tutorials) Marketplace listing.
 
   * Navigate to the Marketplace screen using the menu on the left side of the window
   * Search for `CARTO Academy` in the search bar
@@ -116,18 +116,6 @@ Since CARTO's TABLE s contain raw data you might want to clean it before storing
 Since you are interested in trip data for 2014 and 2015 you need to union `TLC_YELLOW_TRIPS_2014` and `TLC_YELLOW_TRIPS_2015` tables. On average, the execution time on the LARGE warehouse is under 4 minutes.
 
 ```sql
-/*
-Use a Common Table Expression (CTE) to combine the raw trip data from both the 2014 and 2015 tables into a single source.
-*/
-WITH all_trips AS (
-    SELECT * FROM CARTO_ACADEMY.CARTO.TLC_YELLOW_TRIPS_2014
-    UNION ALL
-    SELECT * FROM CARTO_ACADEMY.CARTO.TLC_YELLOW_TRIPS_2015
-)
-
-/*
-Create the final table by selecting from the combined data, applying transformations and filters only once.
-*/
 CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides AS
 SELECT
     -- Convert timestamps from UTC to New York time
@@ -142,7 +130,9 @@ SELECT
     trip_distance,
     total_amount
 FROM
-    all_trips
+    (SELECT * FROM CARTO_ACADEMY.CARTO.TLC_YELLOW_TRIPS_2014
+    UNION ALL
+    SELECT * FROM CARTO_ACADEMY.CARTO.TLC_YELLOW_TRIPS_2015) all_trips
 WHERE
     -- Filter for valid latitude and longitude coordinates
     pickup_latitude BETWEEN -90 AND 90
@@ -350,6 +340,8 @@ Now you will predict the "future" demand for one week of test data. Run the foll
 
 Similar to what you did in the training step, you specify the data the model should use to generate its forecasts (`ny_taxi_rides_h3_predict`) and indicate which columns to use for identifying unique H3 and for timestamps.
 
+> A successful run of this statement will generate a response of `anonymous block` with a value of `null` this is expected
+
 ```sql
 BEGIN
     -- Step 1: Call the forecasting model with the input data and configuration.
@@ -411,6 +403,8 @@ FROM
 ```
 
 Now you will generate evaluation metrics and store them in the `ny_taxi_rides_metrics` table:
+
+> A successful run of this statement will generate a response of `anonymous block` with a value of `null` this is expected
 
 ```sql
 BEGIN
