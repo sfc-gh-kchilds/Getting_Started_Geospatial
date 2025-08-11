@@ -39,7 +39,7 @@ USE WAREHOUSE my_wh;
 Create a new database and schema where you will store datasets in the GEOMETRY data type.
 
 ```sql
-CREATE Database advanced_analytics;
+CREATE or Replace Database advanced_analytics;
 -- Set the working database schema
 USE advanced_analytics.public;
 ALTER SESSION SET GEOGRAPHY_OUTPUT_FORMAT = 'WKT';
