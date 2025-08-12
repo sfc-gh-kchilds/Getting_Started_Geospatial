@@ -28,6 +28,8 @@ CREATE OR REPLACE FILE FORMAT csv_format_nocompression
 
 Now you will create an external stage using S3 with test data:
 
+> In case these files go missing or this S3 is no longer valid the data files can be found in the [/data](/data/) directory
+
 ```sql
 CREATE OR REPLACE STAGE aa_stage URL ='s3://sfquickstarts/hol_geo_spatial_ml_using_snowflake_cortex/';
 ```
