@@ -280,3 +280,5 @@ If you look at all H3 cells where food quality was high, the average sentiment s
 ## Snowflake Employees
 
 Please run the DORA scripts found in: [/config](/config/)
+
+## [Cleanup](/README.md#-cleanup--cost-stewardship-procedures)
