@@ -1,4 +1,4 @@
-# Getting Started with Geospatial Hands-On Practice
+# Predicting NYC Taxi Cab Rides
 
 # Forecasting time series on a map
 
