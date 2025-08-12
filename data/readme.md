@@ -1,0 +1,1 @@
+These files are used in the lab.  The lab uses an S3 location that has the data.  Sometimes this data goes missing in the future so we have placed the raw files here that you can download, unzip and import into your tables in place of the S3 import statement.  This is just incase the data goes missing it is in this lab
