@@ -1,8 +1,8 @@
 Common errors and resolutions:
 
-**Issue:** Map is rendering but no background 
-**Cause:** Check st.pydeck_chart function in the Streamlit Application 
-**Solution:** Make sure the code matches below:
+* **Issue:** Map is rendering but no background 
+* **Cause:** Check st.pydeck_chart function in the Streamlit Application 
+* **Solution:** Make sure the code matches below:
 ```python
     st.pydeck_chart(
         pdk.Deck(
