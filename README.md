@@ -15,21 +15,21 @@ Watch the [X-minute Lab Overview Video](overview.mp4) for a detailed walkthrough
 In this hands-on lab, you'll step into the shoes of **Snowflake Analyst** tasked with **Visualizing GeoSpatial Data in Snowflake**.
 
 ### 📋 What You’ll Do:
-- **[Task 1:](/lab_instructions/Part1.md)** In this lab, we aim to show you how to predict the number of trips in the coming hours in each area of New York. To accomplish this, you will ingest the raw data and then aggregate it by hour and region. For simplicity, you will use [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/). The result will be an hourly time series, each representing the count of trips originating from distinct areas. Before running prediction and visualizing results, you will enrich data with third-party signals, such as information about holidays and offline sports events.
+- **[Part 1:](/lab_instructions/Part1.md)** In this lab, we aim to show you how to predict the number of trips in the coming hours in each area of New York. To accomplish this, you will ingest the raw data and then aggregate it by hour and region. For simplicity, you will use [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/). The result will be an hourly time series, each representing the count of trips originating from distinct areas. Before running prediction and visualizing results, you will enrich data with third-party signals, such as information about holidays and offline sports events.
 
 In this lab you will learn how to:
   * Work with geospatial data
   * Enrich data with new features
   * Predict time-series of complex structure
 
-- **[Task 2:](/lab_instructions/Part2.md)** This lab will show you how to inject AI into your spatial analysis using Cortex Large Language Model (LLM) Functions to help you take your product and marketing strategy to the next level. Specifically, you're going to build a data application that gives food delivery companies the ability to explore the sentiments of customers in the Greater Bay Area. To do this, you use the Cortex LLM Complete Function to classify customer sentiment and extract the underlying reasons for that sentiment from a customer review. Then you use the [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/) for visualizing and exploring spatial data.
+- **[Part 2:](/lab_instructions/Part2.md)** This lab will show you how to inject AI into your spatial analysis using Cortex Large Language Model (LLM) Functions to help you take your product and marketing strategy to the next level. Specifically, you're going to build a data application that gives food delivery companies the ability to explore the sentiments of customers in the Greater Bay Area. To do this, you use the Cortex LLM Complete Function to classify customer sentiment and extract the underlying reasons for that sentiment from a customer review. Then you use the [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/) for visualizing and exploring spatial data.
 
 ### ⏲️ Estimated Lab Timeline
 
 Provide a brief agenda to help SEs understand pacing:
 
-- **[Task 1:](/lab_instructions/Part1.md)** ~20 Mins
-- **[Task 2:](/lab_instructions/Part2.md)** ~30 Mins
+- **[Part 1:](/lab_instructions/Part1.md)** ~20 Mins
+- **[Part 2:](/lab_instructions/Part2.md)** ~30 Mins
   
 ---
 
