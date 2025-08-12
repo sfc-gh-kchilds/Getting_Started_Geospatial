@@ -35,36 +35,28 @@ CREATE OR REPLACE STAGE aa_stage URL ='s3://sfquickstarts/hol_geo_spatial_ml_usi
 Then create a table where you will store the customer feedback dataset:
 
 ```sql
-CREATE OR REPLACE TABLE advanced_analytics.public.Orders_reviews
-AS
-    SELECT $1::NUMBER as OR der_id,
-    $2::VARCHAR as customer_id,
-    TO_GEOGRAPHY($3) as delivery_location,
-    $4::NUMBER as delivery_postcode,
-    $5::FLOAT as delivery_distance_miles,
-    $6::VARCHAR as restaurant_food_type,
-    TO_GEOGRAPHY($7) as restaurant_location,
-    $8::NUMBER as restaurant_postcode,
-    $9::VARCHAR as restaurant_id,
-    $10::VARCHAR as review
+CREATE OR REPLACE TABLE advanced_analytics.public.orders_reviews
+as
+    SELECT $1::NUMBER as order_id,
+        2::VARCHAR as customer_id,
+        TO_GEOGRAPHY($3) as delivery_location,
+        $4::NUMBER as delivery_postcode,
+        $5::FLOAT as delivery_distance_miles,
+        $6::VARCHAR as restaurant_food_type,
+        TO_GEOGRAPHY($7) as restaurant_location,
+        $8::NUMBER as restaurant_postcode,
+        $9::VARCHAR as restaurant_id,
+        $10::VARCHAR as review
     FROM
-    @advanced_analytics.public.aa_stage/food_delivery_reviews.csv
-    (file_format = > 'csv_format_nocompression');
+        @advanced_analytics.public.aa_stage/food_delivery_reviews.csv
+    (file_format => 'csv_format_nocompression');
 ```
 
 Congratulations\! Now you have `Orders_reviews` table containing 100K Orders with reviews.
 
 ## Step 2. Preparing and running the prompt
 
-In this step, you will prepare the prompt to run the analysis. For the task at hand, you will use the `CORTEX.COMPLETE()` function because it is purpose-built to power data processing and data generation tasks. First, let's create a cortex role. In the query below change the username AA to the username you used to login to Snowflake.
-
-```sql
-CREATE OR REPLACE ROLE cortex_user_role;
-GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO ROLE cortex_user_role;
-GRANT ROLE cortex_user_role TO USER <AA>;
-```
-
-You are now ready to provide `CORTEX.COMPLETE()` functions with the instructions on the analysis that you want to produce. Specifically, using a raw table with reviews you'll create a new table with two additional columns: Overall Sentiment and Sentiment Categories which are composed of two different CORTEX.COMPLETE ( ) prompts. For complex aspect-based sentiment analysis like this, you are going to pick the mixtral-8x7b, a very capable open-source LLM created by Mistral AI.
+In this step, you will prepare the prompt to run the analysis. For the task at hand, you will use the `CORTEX.COMPLETE()` function because it is purpose-built to power data processing and data generation tasks.  Specifically, using a raw table with reviews you'll create a new table with two additional columns: Overall Sentiment and Sentiment Categories which are composed of two different CORTEX.COMPLETE ( ) prompts. For complex aspect-based sentiment analysis like this, you are going to pick the mixtral-8x7b, a very capable open-source LLM created by Mistral AI.
 
   * Overall Sentiment assigns an overall rating of the delivery: Very Positive, Positive, Neutral, Mixed, Negative, Very Negative, or other.
   * Sentiment Categories give us richer insights into why the overall rating is based on Food Cost, Quality, and Delivery Time.
@@ -182,9 +174,7 @@ Now when you have a table with sentiment, you need to parse JSONs to store each 
 
 ```sql
 CREATE OR REPLACE TABLE advanced_analytics.public.orders_reviews_sentiment_analysis AS
-SELECT
-    -- Select all columns except the raw text versions being replaced
-    EXCLUDE (food_cost, food_quality, food_delivery_time, sentiment),
+SELECT * EXCLUDE (food_cost, food_quality, food_delivery_time, sentiment),
 
     -- Convert sentiment text to a numerical score
     CASE
@@ -407,8 +397,8 @@ def render_pydeck_chart(
 
     st.pydeck_chart(
         pdk.Deck(
-            map_provider="mapbox",
-            map_style=pdk.map_styles.MAPBOX_LIGHT,
+        pdk.Deck(
+            map_style="light",# This gives you a light theme
             initial_view_state=view_state,
             tooltip={"html": "<b>Value:</b> {COUNT}", "style": {"color": "white"}},
             layers=[h3_layer],
