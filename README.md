@@ -113,10 +113,20 @@ Common errors and resolutions:
 ## 🧹 Cleanup & Cost-Stewardship Procedures
 
 🗑 **Cleanup Instructions:**
-- Run the command `DROP WAREHOUSE IF EXISTS [your warehouse];` in Snowflake after lab completion.
-- Immediately shut down your SageMaker instance through AWS Console:
-  - Navigate to SageMaker > JupyterLab Spaces.
-  - Stop or delete your workspace.
+* Drop the Following Databases:
+```sql
+drop database advanced_analytics;
+drop database Carto_Academy;
+drop database Predicthq_demo;
+```
+* Delete the warehouse you created
+```sql
+drop warehouse my_wh;
+```
+* Delete the Streamlit Apps:
+ *  Demand Prediction - model analysis
+ *  Sentiment analysis - results
+Now that we’ve completed the work for this hands-on practice, you can clean up the databases by dropping ADVANCEDANALYTICS , CARTO ACADEMY , and PREDICTHQ DEMO . 
 
 ---
 
