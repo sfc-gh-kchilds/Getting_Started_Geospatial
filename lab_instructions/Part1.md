@@ -1,13 +1,16 @@
 # Getting Started with Geospatial Hands-On Practice
 
-Snowflake offers a rich toolkit for predictive analytics with a geospatial component. It includes two data types and specialized functions for transformation, prediction, and visualization. This guide is divided into multiple labs, each covering a separate use case that showcases different features for a real-world scenario.
+# Forecasting time series on a map
 
-Helpful Supporting Documents:
+In this lab, we aim to show you how to predict the number of trips in the coming hours in each area of New York. To accomplish this, you will ingest the raw data and then aggregate it by hour and region. For simplicity, you will use [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/). The result will be an hourly time series, each representing the count of trips originating from distinct areas. Before running prediction and visualizing results, you will enrich data with third-party signals, such as information about holidays and offline sports events.
 
-  * Understanding of Discrete Global Grid H3
-  * Understanding of Geospatial Data Types and Geospatial Functions in Snowflake
-  * Geospatial Analysis using Geometry Data Type Quickstart
-  * ​Performance Optimization Techniques for Geospatial queries Quickstart
+In this lab you will learn how to:
+
+  * Work with geospatial data
+  * Enrich data with new features
+  * Predict time-series of complex structure
+
+This approach is not unique to trip forecasting but is equally applicable in various scenarios where predictive analysis is required. Examples include forecasting scooter or bike pickups, food delivery orders, sales across multiple retail outlets, or predicting the volume of cash withdrawals across an ATM network. Such models are invaluable for planning and optimization across various industries and services.
 
 ## Setup your Account
 
@@ -45,20 +48,6 @@ USE advanced_analytics.public;
 ALTER SESSION SET GEOGRAPHY_OUTPUT_FORMAT = 'WKT';
 ALTER SESSION SET USE_CACHED_RESULT = FALSE;
 ```
-
-### Set up DORA grading in your demo account (if you haven’t already done so
-
-# Forecasting time series on a map
-
-In this lab, we aim to show you how to predict the number of trips in the coming hours in each area of New York. To accomplish this, you will ingest the raw data and then aggregate it by hour and region. For simplicity, you will use [Discrete Global Grid H3](https://www.uber.com/en-DE/blog/h3/). The result will be an hourly time series, each representing the count of trips originating from distinct areas. Before running prediction and visualizing results, you will enrich data with third-party signals, such as information about holidays and offline sports events.
-
-In this lab you will learn how to:
-
-  * Work with geospatial data
-  * Enrich data with new features
-  * Predict time-series of complex structure
-
-This approach is not unique to trip forecasting but is equally applicable in various scenarios where predictive analysis is required. Examples include forecasting scooter or bike pickups, food delivery orders, sales across multiple retail outlets, or predicting the volume of cash withdrawals across an ATM network. Such models are invaluable for planning and optimization across various industries and services.
 
 ## Step 1. Data acquisition
 
