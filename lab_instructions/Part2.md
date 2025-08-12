@@ -397,7 +397,6 @@ def render_pydeck_chart(
 
     st.pydeck_chart(
         pdk.Deck(
-        pdk.Deck(
             map_style="light",# This gives you a light theme
             initial_view_state=view_state,
             tooltip={"html": "<b>Value:</b> {COUNT}", "style": {"color": "white"}},
