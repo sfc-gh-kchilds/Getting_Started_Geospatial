@@ -448,27 +448,9 @@ In order to understand why customers in this area are unhappy, you analyze the a
 
 If you look at all H3 cells where food quality was high, the average sentiment score is also generally high. Again, you can see there are no cells where customers felt the food quality was above average in the greater Berkeley area. This could indicate either that high quality delivery food is uncommon or that the customers in these areas have higher expectations for delivery food. You can also analyze what areas are getting higher scores for each of the categories and how it correlates with the overall sentiment scores for restaurants in each area.
 
-## Use the DORA grading function to receive credit for creating the tables.
+## Snowflake Employees
 
-\--Execute DORA grading function to verify tables created
-
-```sql
-use role ACCOUNTADMIN;
-use warehouse my_wh;
-select util_db.public.se_grader(step, (actual = expected),
-    actual, expected, description) as graded_results from
-    (SELECT
-    'SEDW03' as step
-        ,( select count(*) from
-        advanced_analytics.information_schema.TABLE s where
-        table_name in ('OR DERS_REVIEWS',
-            'OR DERS_REVIEWS_SENTIMENT_TEST','OR DERS_REVIEWS_SENTIMENT',
-            'OR DERS_REVIEWS_SENTIMENT_ANALYSIS')) as actual
-    , 4 as expected
-    ,'GEOSPATIAL OR DERS TABLE S CREATE D SUCCESSFULLY!' as
-    description
-    );
-```
+Please run the DORA scripts found in: [/config](/config/)
 
 ## Clean up;
 
