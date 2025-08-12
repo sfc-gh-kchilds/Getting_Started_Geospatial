@@ -124,9 +124,8 @@ drop database Predicthq_demo;
 drop warehouse my_wh;
 ```
 * Delete the Streamlit Apps:
- *  Demand Prediction - model analysis
- *  Sentiment analysis - results
-Now that we’ve completed the work for this hands-on practice, you can clean up the databases by dropping ADVANCEDANALYTICS , CARTO ACADEMY , and PREDICTHQ DEMO . 
+  * Demand Prediction - model analysis
+  * Sentiment Analysis - results
 
 ---
 
