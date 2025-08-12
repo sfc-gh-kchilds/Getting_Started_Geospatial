@@ -251,7 +251,7 @@ Click on the packages tab and add `pydeck` and `branca` to the list of packages 
 
 Copy the following code and replace all code in the streamlit editor inside Snowflake
 
-> For simplicity this code has been broken out to [Stream App Part 1](/code/Part2_Streamlit_App.py)
+> For simplicity this code has been broken out to [Stream App Part 2](/code/Part2_Streamlit_App.py)
 
 After clicking `Run` button you will see the following UI:
 
