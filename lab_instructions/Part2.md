@@ -280,7 +280,3 @@ If you look at all H3 cells where food quality was high, the average sentiment s
 ## Snowflake Employees
 
 Please run the DORA scripts found in: [/config](/config/)
-
-## Clean up;
-
-Now that we’ve completed the work for this hands-on practice, you can clean up the databases by dropping ADVANCEDANALYTICS , CARTO ACADEMY , and PREDICTHQ DEMO . You can also drop the CORTEX USER ROLE and Demand Prediction - model analysis and Sentiment analysis - results Streamlit apps.
