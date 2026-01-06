@@ -453,4 +453,4 @@ FROM
 
 ## Step 3. Data Enrichment
 
-*[Continue with the rest of the original Part1.md from Step 3 onwards - no changes needed]* Part 1 - [NYC Taxi Cabs]([/lab_instructions/Part1.md](https://github.com/sfc-gh-kchilds/Getting_Started_Geospatial/blob/main/lab_instructions/Part1.md#step-3-data-enrichment))
+*[Continue with the rest of the original Part1.md from Step 3 onwards - no changes needed]* Part 1 - [NYC Taxi Cabs](https://github.com/sfc-gh-kchilds/Getting_Started_Geospatial/blob/main/lab_instructions/Part1.md#step-3-data-enrichment)
