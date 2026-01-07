@@ -308,7 +308,7 @@ Another dataset you will use is events data. Check if it's available on Snowflak
 
 ---
 
-**✅ Data acquisition complete!** The tables `TLC_YELLOW_TRIPS_2014` and `TLC_YELLOW_TRIPS_2015` now have the same structure as the original CARTO data. Continue with Step 2 below.
+**Data acquisition complete!** The tables `TLC_YELLOW_TRIPS_2014` and `TLC_YELLOW_TRIPS_2015` now have the same structure as the original CARTO data. Continue with Step 2 below.
 
 ---
 
@@ -336,7 +336,7 @@ USE advanced_analytics.public;
 USE WAREHOUSE my_wh;
 ```
 
-Since CARTO's TABLE s contain raw data you might want to clean it before storing. In the following query you will do a few data cleaning steps:
+Since CARTO's Tables contain raw data you might want to clean it before storing. In the following query you will do a few data cleaning steps:
 
   * Remove rows that are outside of latitude/longitude allowed values
   * Keep only trips with a duration longer than one minute and distances more than 10 meters.
@@ -451,7 +451,7 @@ FROM
         ON t1.pickup_time = t2.pickup_time AND t1.h3 = t2.h3;
 ```
 
-## Step 3. Data Enrichment (continued)
+## Step 3. Data Enrichment
 
 In this step, you will enhance our dataset with extra features that could improve the accuracy of our predictions. The Cortex model for time series automatically encodes days of the week as a separate feature, but it makes sense to consider that public or school holidays could affect the demand for taxi services. Likewise, areas hosting sporting events might experience a surge in taxi pickups. To incorporate this insight, you will use data from [PredictHQ - Quickstart Demo](https://app.snowflake.com/marketplace/listing/GZSTZ3TGTNLQM/predicthq-quickstart-demo) listing, which provides information on events in New York for the years 2014-2015.
 
@@ -524,6 +524,8 @@ FROM
 
 ## Step 4. Training and Prediction
 
+In this step, you'll divide our dataset into two parts: the Training set and the Prediction set. The Training set will be used to train our machine learning model. It will include data from the entirety of 2014 and part of 2015, going up to June 5th, 2015. Run the following query to create the Training set:
+
 ```sql
 CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3_train AS
 SELECT
@@ -533,6 +535,8 @@ FROM
 WHERE
     DATE(pickup_time) < DATE('2015-06-05 12:00:00');
 ```
+
+The prediction set, on the other hand, will contain data for one week starting June 5th, 2015. This setup allows us to make predictions on data that wasn't used during training.
 
 ```sql
 CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_h3_predict AS
@@ -549,6 +553,8 @@ WHERE
     AND DATE(pickup_time) < DATE('2015-06-12');
 ```
 
+Now that you have the Training and Prediction SETs, you can run your model training step. In this step, you will use Snowflake's Cortex ML Forecasting function to train your `ny_taxi_rides_model` . You're telling the function it should train on `ny_taxi_rides_h3_train`– and that this table contains data for multiple distinct time series ( `series_colname =>‘h3'`), one for each h3 in the table. The function will now automatically train one machine learning model for each h3. Note that you are also telling the model which column in our table to use as a timestamp and which column to treat as our "target" (i.e., the column you want to forecast). On average the query below completes in about 7 minutes on the LARGE warehouse though we have seen it take as long as 30 minutes.
+
 ```sql
 CREATE OR REPLACE SNOWFLAKE.ML.FORECAST ny_taxi_rides_model(
     INPUT_DATA => SYSTEM$REFERENCE('TABLE', 'advanced_analytics.public.ny_taxi_rides_h3_train'),
@@ -558,25 +564,54 @@ CREATE OR REPLACE SNOWFLAKE.ML.FORECAST ny_taxi_rides_model(
 );
 ```
 
+Now you will predict the "future" demand for one week of test data. Run the following command to forecast demand for each H3 cell ID and store your results in the "forecasts" table.
+
+Similar to what you did in the training step, you specify the data the model should use to generate its forecasts (`ny_taxi_rides_h3_predict`) and indicate which columns to use for identifying unique H3 and for timestamps.
+
+> A successful run of this statement will generate a response of `anonymous block` with a value of `null` this is expected
+
 ```sql
 BEGIN
+    -- Step 1: Call the forecasting model with the input data and configuration.
     CALL ny_taxi_rides_model!FORECAST(
         INPUT_DATA => SYSTEM$REFERENCE('TABLE', 'advanced_analytics.public.ny_taxi_rides_h3_predict'),
         SERIES_COLNAME => 'h3',
         TIMESTAMP_COLNAME => 'pickup_time',
         CONFIG_OBJECT => {'prediction_interval': 0.95}
     );
+
+    -- Step 2: Capture the ID of the last query (the model call) to reference its results.
     LET query_id := SQLID;
+
+    -- Step 3: Create a new table to store the cleaned forecast results.
     CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_model_forecast AS
     SELECT
         series::STRING AS h3,
         ts AS pickup_time,
-        CASE WHEN forecast < 0 THEN 0 ELSE forecast END AS forecast,
-        CASE WHEN lower_bound < 0 THEN 0 ELSE lower_bound END AS lower_bound,
-        CASE WHEN upper_bound < 0 THEN 0 ELSE upper_bound END AS upper_bound
-    FROM TABLE(RESULT_SCAN(:query_id));
+
+        -- Ensure forecast values are not negative, defaulting to 0 if they are.
+        CASE
+            WHEN forecast < 0 THEN 0
+            ELSE forecast
+        END AS forecast,
+
+        -- Ensure the lower prediction bound is not negative.
+        CASE
+            WHEN lower_bound < 0 THEN 0
+            ELSE lower_bound
+        END AS lower_bound,
+
+        -- Ensure the upper prediction bound is not negative.
+        CASE
+            WHEN upper_bound < 0 THEN 0
+            ELSE upper_bound
+        END AS upper_bound
+    FROM
+        TABLE(RESULT_SCAN(:query_id));
 END;
 ```
+
+Create a table with predicted and actual results:
 
 ```sql
 CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_compare AS
@@ -584,47 +619,79 @@ SELECT
     t1.h3,
     t1.pickup_time,
     t2.pickups,
+    -- Round the forecasted value to the nearest whole number
     ROUND(t1.forecast, 0) AS forecast
 FROM
+    -- This table contains the output from the forecasting model
     advanced_analytics.public.ny_taxi_rides_model_forecast AS t1
+    -- Join back to the original table to get the actual pickup counts
     INNER JOIN advanced_analytics.public.ny_taxi_rides_h3 AS t2
         ON t1.h3 = t2.h3
         AND t1.pickup_time = t2.pickup_time;
 ```
 
+Now you will generate evaluation metrics and store them in the `ny_taxi_rides_metrics` table:
+
+> A successful run of this statement will generate a response of `anonymous block` with a value of `null` this is expected
+
 ```sql
 BEGIN
+    -- First, call the method to show the model's evaluation metrics
     CALL ny_taxi_rides_model!show_evaluation_metrics();
+
+    -- Capture the ID of the previous SQL statement (the CALL command)
     LET sql_id := SQLID;
+
+    -- Create a new table to store the metrics
     CREATE OR REPLACE TABLE advanced_analytics.public.ny_taxi_rides_metrics AS
     SELECT
-        series::string AS h3,
-        metric_value,
-        error_metric
-    FROM TABLE(RESULT_SCAN(:sql_id));
+        series::string AS h3, -- The series identifier, cast to a string
+        metric_value,         -- The calculated value of the metric
+        error_metric          -- The name of the error metric (e.g., 'MAPE', 'RMSE')
+    FROM
+        -- Use the RESULT_SCAN function to query the results of the previous CALL command
+        TABLE(RESULT_SCAN(:sql_id));
 END;
 ```
+
+The table `ny_taxi_rides_metrics` contains various metrics; please review what is available in the table. You should select a metric that allows uniform comparisons across all hexagons to understand the model's performance in each hexagon. Since trip volumes may vary among hexagons, the chosen metric should not be sensitive to absolute values. The Symmetric Mean Absolute Percentage Error ([SMAPE](https://en.wikipedia.org/wiki/Symmetric_mean_absolute_percentage_error)) would be a suitable choice. Create a table with the list of hexagons and the SMAPE value for each:
 
 ```sql
 CREATE OR REPLACE TABLE
 advanced_analytics.public.ny_taxi_rides_metrics AS
 SELECT h3, metric_value AS smape
 FROM advanced_analytics.public.ny_taxi_rides_metrics
-WHERE error_metric::string = 'SMAPE'
-ORDER BY 2 ASC;
+    WHERE error_metric::string = 'SMAPE'
+        Order by 2 Asc;
 ```
 
 ## Step 5. Visualization and analysis
 
+In this step, you will visualize the actual and predicted results and consider how you can improve our model. Open `Projects > Streamlit > + Streamlit App`. Give the new app a name, for example `Demand Prediction - model analysis` , and pick `ADVANCED_ANALYTICS.PUBLIC` as an app location.
+
 <img src="images/image_006.png" alt="alt text" width="45%">
+
+Click on the packages tab and add `pydeck`, `branca` and `plotly` to the list of packages as our app will be using them.
 
 <img src="images/image_007.png" alt="alt text" width="45%">
 
+Copy the following code and replace all code in the streamlit editor inside Snowflake
+
 > For simplicity this code has been broken out to [Stream App Part 1](/code/Part1_Streamlit_App.py)
+
+After clicking `Run` button you will see the following UI:
 
 <img src="images/image_008.png" alt="alt text" width="45%">
 
+Click `Expand to see SMAPE metric` in the sidebar and find hexagons with good/bad MAPE values. Find them on the map using `H3 cells to display` dropdown.
+
+As you can see, overall, the model is quite good, with SMAPE below 0.3 for most of the hexagons. Even with its current quality, the model can already be used to predict future demand. However, let's still consider how you can improve it.
+
+The worst predictions are for hexagons corresponding to LaGuardia Airport ( `882a100e25fffff` , `882a100f57fffff` , `882a100f53fffff` ). To address this, you might consider adding information about flight arrivals and departures, which could improve the model's quality. It is a bit surprising to see poor quality at the hexagon `882a100897fffff` , which is close to Central Park. However, it seems that June 7th is the main driver of the poor prediction, as model significantly underpredicted during both day and night hours.
+
 <img src="images/image_009.png" alt="alt text" width="45%">
+
+You have information about public and school holidays and sports events among our features. Perhaps adding information about other local events, such as festivals, could improve the overall quality of the model.
 
 You have information about public and school holidays and sports events among our features. Perhaps adding information about other local events, such as festivals, could improve the overall quality of the model.
 
