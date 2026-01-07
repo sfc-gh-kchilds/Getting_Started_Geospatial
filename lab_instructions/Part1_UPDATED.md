@@ -693,13 +693,9 @@ The worst predictions are for hexagons corresponding to LaGuardia Airport ( `882
 
 You have information about public and school holidays and sports events among our features. Perhaps adding information about other local events, such as festivals, could improve the overall quality of the model.
 
-You have information about public and school holidays and sports events among our features. Perhaps adding information about other local events, such as festivals, could improve the overall quality of the model.
-
 ---
 
-## Step 6. LTE Coverage on Highways (NY) using OpenStreetMap
-
-This section answers “What percent of highways have LTE coverage?” using the free OpenStreetMap New York dataset. It uses the exact objects and columns from your Marketplace install so no edits are required.
+## Step 6. Coverage using OpenStreetMap
 
 ### 6.1 Install Marketplace Data
 
