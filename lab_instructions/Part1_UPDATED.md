@@ -451,13 +451,6 @@ FROM
         ON t1.pickup_time = t2.pickup_time AND t1.h3 = t2.h3;
 ```
 
-## Step 3. Data Enrichment
-
-*[Continue with the rest of the original Part1.md from Step 3 onwards - no changes needed]*
-
-
----
-
 ## Step 3. Data Enrichment (continued)
 
 In this step, you will enhance our dataset with extra features that could improve the accuracy of our predictions. The Cortex model for time series automatically encodes days of the week as a separate feature, but it makes sense to consider that public or school holidays could affect the demand for taxi services. Likewise, areas hosting sporting events might experience a surge in taxi pickups. To incorporate this insight, you will use data from [PredictHQ - Quickstart Demo](https://app.snowflake.com/marketplace/listing/GZSTZ3TGTNLQM/predicthq-quickstart-demo) listing, which provides information on events in New York for the years 2014-2015.
@@ -775,6 +768,7 @@ FROM ny_highways_coverage_stats;
 
 ### 6.6 Notes
 
-- Keep object names in `advanced_analytics.public` to align with the rest of the lab.
 - Buffer radius is a modeling choice. Use 1000–3000 meters for sensitivity testing. Larger radii increase coverage and runtime.
 - You can visualize results by loading `ny_highways_coverage_stats` into a simple worksheet chart, or by building a quick Streamlit layer showing `ny_highways` colored by `pct_covered` (optional).
+
+## Continue to [Part 2](/lab_instructions/Part2.md)
